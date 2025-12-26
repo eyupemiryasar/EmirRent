@@ -18,4 +18,4 @@ Kullanıcıların mevcut araçları listelemesini, özelliklerini görmesini ve 
 * [x] Onay ekranı
 
 ---
-*Geliştirici: Emir Yaşar*
+*Geliştirici: Eyüp Emir Yaşar*
