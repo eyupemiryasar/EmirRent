@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EmirRent - Araç Kiralama</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --emirrent-teal: #20c997;
+        }
+
+        body {
+            background-color: #f5f7fa;
+        }
+
+        .navbar-emirrent {
+            background: linear-gradient(135deg, #17a2b8, #20c997);
+        }
+
+        .navbar-emirrent .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .btn-teal {
+            background-color: var(--emirrent-teal);
+            border-color: var(--emirrent-teal);
+            color: #fff;
+        }
+
+        .btn-teal:hover {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: #fff;
+        }
+
+        .text-teal {
+            color: var(--emirrent-teal) !important;
+        }
+
+        .card-vehicle {
+            border-radius: 0.75rem;
+        }
+
+        .badge-neutral {
+            background-color: #f8f9fa;
+            color: #343a40;
+            border: 1px solid #dee2e6;
+            font-weight: 500;
+        }
+
+        .vehicle-image {
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+            object-fit: cover;
+            height: 150px;
+        }
+
+        .tab-nav-teal .nav-link {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .tab-nav-teal .nav-link.active {
+            color: var(--emirrent-teal);
+            border-color: var(--emirrent-teal) var(--emirrent-teal) #fff;
+        }
+
+        .search-panel {
+            margin-top: -60px;
+        }
+
+        @media (max-width: 576px) {
+            .search-panel {
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-emirrent shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            EmirRent
+        </a>
+    </div>
+</nav>
+
+<header class="bg-light pb-4 pt-5">
+    <div class="container">
+        <div class="row align-items-center gy-3">
+            <div class="col-md-7">
+                <h1 class="fw-bold text-teal mb-2">Türkiye'nin yeni nesil araç kiralama platformu</h1>
+                <p class="text-muted mb-0">
+                    EmirRent ile güvenli, şeffaf ve konforlu araç kiralama deneyimini hemen keşfedin.
+                </p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="search-panel">
+    <div class="container">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-3 p-md-4">
+                <form th:action="@{/search}" method="get" class="row gy-3 gx-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Alış Lokasyonu</label>
+                        <select class="form-select" name="pickupLocation" required>
+                            <option value="" disabled selected>Lokasyon Seçiniz</option>
+                            <option th:each="loc : ${locations}"
+                                    th:value="${loc}"
+                                    th:text="${loc}"
+                                    th:selected="${pickupLocation} == ${loc}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Teslim Lokasyonu</label>
+                        <select class="form-select" name="dropoffLocation" required>
+                            <option value="" disabled selected>Lokasyon Seçiniz</option>
+                            <option th:each="loc : ${locations}"
+                                    th:value="${loc}"
+                                    th:text="${loc}"
+                                    th:selected="${dropoffLocation} == ${loc}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Alış Tarihi</label>
+                        <input type="date"
+                               class="form-control"
+                               name="pickupDate"
+                               th:value="${pickupDateTime != null ? #temporals.format(pickupDateTime, 'yyyy-MM-dd') : null}"
+                               required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Alış Saati</label>
+                        <select class="form-select" name="pickupTime" required>
+                            <option value="" disabled th:selected="${pickupDateTime == null}">Saat Seçiniz</option>
+                            <option th:each="t : ${timeSlots}"
+                                    th:value="${t}"
+                                    th:text="${t}"
+                                    th:selected="${pickupDateTime != null and #temporals.format(pickupDateTime, 'HH:mm') == t}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Teslim Tarihi</label>
+                        <input type="date"
+                               class="form-control"
+                               name="dropoffDate"
+                               th:value="${dropoffDateTime != null ? #temporals.format(dropoffDateTime, 'yyyy-MM-dd') : null}"
+                               required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Teslim Saati</label>
+                        <select class="form-select" name="dropoffTime" required>
+                            <option value="" disabled th:selected="${dropoffDateTime == null}">Saat Seçiniz</option>
+                            <option th:each="t : ${timeSlots}"
+                                    th:value="${t}"
+                                    th:text="${t}"
+                                    th:selected="${dropoffDateTime != null and #temporals.format(dropoffDateTime, 'HH:mm') == t}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 d-grid">
+                        <button type="submit" class="btn btn-teal fw-semibold">
+                            Araçları Listele
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${economyResults != null}" class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="text-muted small">Seçilen Lokasyon:</span>
+                    <span class="fw-semibold" th:text="${pickupLocation}"></span>
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted">Alış / Teslim</div>
+                    <div class="fw-semibold">
+                        <span th:text="${#temporals.format(pickupDateTime, 'dd/MM/yyyy HH:mm')}"></span>
+                        <span class="text-muted"> → </span>
+                        <span th:text="${#temporals.format(dropoffDateTime, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <div class="small text-muted">Gün</div>
+                    <div class="fw-semibold text-teal" th:text="${days}"></div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <ul class="nav nav-tabs tab-nav-teal" id="vehicleTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active"
+                            id="economy-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#economy"
+                            type="button"
+                            role="tab"
+                            aria-controls="economy"
+                            aria-selected="true">
+                        Ekonomik
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="comfort-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#comfort"
+                            type="button"
+                            role="tab"
+                            aria-controls="comfort"
+                            aria-selected="false">
+                        Konfor
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="luxury-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#luxury"
+                            type="button"
+                            role="tab"
+                            aria-controls="luxury"
+                            aria-selected="false">
+                        Lüks
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-3" id="vehicleTabContent">
+                <!-- Ekonomik Tab -->
+                <div class="tab-pane fade show active" id="economy" role="tabpanel" aria-labelledby="economy-tab">
+                    <div class="row g-3">
+                        <div class="col-md-4"
+                             th:each="result : ${economyResults}">
+                            <div class="card card-vehicle shadow-sm border-0 h-100">
+                                <img th:src="${result.vehicle.imageUrl}"
+                                     class="card-img-top vehicle-image"
+                                     alt="Araç görseli">
+
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title mb-1">
+                                        <span th:text="${result.vehicle.brand}"></span>
+                                        <span th:text="${result.vehicle.model}"></span>
+                                    </h5>
+                                    <div class="mb-2">
+                                        <span class="badge badge-neutral me-1"
+                                              th:text="${result.vehicle.fuel.displayName}">
+                                        </span>
+                                        <span class="badge badge-neutral"
+                                              th:text="${result.vehicle.gear.displayName}">
+                                        </span>
+                                    </div>
+
+                                    <a href="#"
+                                       class="small text-decoration-none mb-2"
+                                       data-bs-toggle="collapse"
+                                       th:attr="data-bs-target='#details-' + ${result.vehicle.id}">
+                                        <span class="me-1">Araç Detayları</span>
+                                        <i class="bi bi-chevron-down"></i>
+                                    </a>
+
+                                    <div class="collapse mb-2"
+                                         th:id="'details-' + ${result.vehicle.id}">
+                                        <ul class="list-unstyled small mb-0 text-muted">
+                                            <li th:text="'Min. Sürücü Yaşı: ' + ${result.vehicle.minAge} + ' yaş'"></li>
+                                            <li th:text="'Min. Ehliyet Süresi: ' + ${result.vehicle.minLicenseYear} + ' yıl'"></li>
+                                            <li th:text="'Günlük KM Limiti: ' + ${T(com.emirrent.model.Vehicle).getDailyKmLimit()} + ' km'"></li>
+                                        </ul>
+                                    </div>
+
+                                    <form class="mt-auto pt-2" method="post" th:action="@{/payment-page}">
+                                        <input type="hidden" name="vehicleId" th:value="${result.vehicle.id}">
+                                        <input type="hidden" name="pickupLocation" th:value="${pickupLocation}">
+                                        <input type="hidden" name="dropoffLocation" th:value="${dropoffLocation}">
+                                        <input type="hidden" name="pickupDate" th:value="${pickupDateTime != null ? #temporals.format(pickupDateTime, 'yyyy-MM-dd') : ''}">
+                                        <input type="hidden" name="pickupTime" th:value="${pickupDateTime != null ? #temporals.format(pickupDateTime, 'HH:mm') : ''}">
+                                        <input type="hidden" name="dropoffDate" th:value="${dropoffDateTime != null ? #temporals.format(dropoffDateTime, 'yyyy-MM-dd') : ''}">
+                                        <input type="hidden" name="dropoffTime" th:value="${dropoffDateTime != null ? #temporals.format(dropoffDateTime, 'HH:mm') : ''}">
+                                        <div class="d-flex justify-content-between align-items-end mb-2">
+                                            <div>
+                                                <div class="small text-muted">Günlük Fiyat</div>
+                                                <div class="fw-bold text-teal fs-5"
+                                                     th:text="${#numbers.formatInteger(result.pricePerDay, 0, 'POINT')} + ' TL'">
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="small text-muted">Toplam</div>
+                                                <div class="fw-bold text-teal fs-6"
+                                                     th:text="${#numbers.formatInteger(result.totalPrice, 0, 'POINT')} + ' TL'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-teal w-100 fw-semibold">
+                                            Hemen Kirala
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(economyResults)}" class="col-12">
+                            <div class="alert alert-light border">
+                                Seçilen kriterlere uygun ekonomik araç bulunamadı.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Konfor Tab -->
+                <div class="tab-pane fade" id="comfort" role="tabpanel" aria-labelledby="comfort-tab">
+                    <div class="row g-3">
+                        <div class="col-md-4"
+                             th:each="result : ${comfortResults}">
+                            <div class="card card-vehicle shadow-sm border-0 h-100">
+                                <img th:src="${result.vehicle.imageUrl}"
+                                     class="card-img-top vehicle-image"
+                                     alt="Araç görseli">
+
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title mb-1">
+                                        <span th:text="${result.vehicle.brand}"></span>
+                                        <span th:text="${result.vehicle.model}"></span>
+                                    </h5>
+                                    <div class="mb-2">
+                                        <span class="badge badge-neutral me-1"
+                                              th:text="${result.vehicle.fuel.displayName}">
+                                        </span>
+                                        <span class="badge badge-neutral"
+                                              th:text="${result.vehicle.gear.displayName}">
+                                        </span>
+                                    </div>
+
+                                    <a href="#"
+                                       class="small text-decoration-none mb-2"
+                                       data-bs-toggle="collapse"
+                                       th:attr="data-bs-target='#details-' + ${result.vehicle.id}">
+                                        <span class="me-1">Araç Detayları</span>
+                                        <i class="bi bi-chevron-down"></i>
+                                    </a>
+
+                                    <div class="collapse mb-2"
+                                         th:id="'details-' + ${result.vehicle.id}">
+                                        <ul class="list-unstyled small mb-0 text-muted">
+                                            <li th:text="'Min. Sürücü Yaşı: ' + ${result.vehicle.minAge} + ' yaş'"></li>
+                                            <li th:text="'Min. Ehliyet Süresi: ' + ${result.vehicle.minLicenseYear} + ' yıl'"></li>
+                                            <li th:text="'Günlük KM Limiti: ' + ${T(com.emirrent.model.Vehicle).getDailyKmLimit()} + ' km'"></li>
+                                        </ul>
+                                    </div>
+
+                                    <form class="mt-auto pt-2" method="post" th:action="@{/payment-page}">
+                                        <input type="hidden" name="vehicleId" th:value="${result.vehicle.id}">
+                                        <input type="hidden" name="pickupLocation" th:value="${pickupLocation}">
+                                        <input type="hidden" name="dropoffLocation" th:value="${dropoffLocation}">
+                                        
+                                        <input type="hidden" name="pickupDate" th:value="${pickupDateTime != null ? #temporals.format(pickupDateTime, 'yyyy-MM-dd') : ''}">
+                                        <input type="hidden" name="pickupTime" th:value="${pickupDateTime != null ? #temporals.format(pickupDateTime, 'HH:mm') : ''}">
+                                        
+                                        <input type="hidden" name="dropoffDate" th:value="${dropoffDateTime != null ? #temporals.format(dropoffDateTime, 'yyyy-MM-dd') : ''}">
+                                        <input type="hidden" name="dropoffTime" th:value="${dropoffDateTime != null ? #temporals.format(dropoffDateTime, 'HH:mm') : ''}">
+                                        <div class="d-flex justify-content-between align-items-end mb-2">
+                                            <div>
+                                                <div class="small text-muted">Günlük Fiyat</div>
+                                                <div class="fw-bold text-teal fs-5"
+                                                     th:text="${#numbers.formatInteger(result.pricePerDay, 0, 'POINT')} + ' TL'">
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="small text-muted">Toplam</div>
+                                                <div class="fw-bold text-teal fs-6"
+                                                     th:text="${#numbers.formatInteger(result.totalPrice, 0, 'POINT')} + ' TL'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-teal w-100 fw-semibold">
+                                            Hemen Kirala
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(comfortResults)}" class="col-12">
+                            <div class="alert alert-light border">
+                                Seçilen kriterlere uygun konfor araç bulunamadı.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lüks Tab -->
+                <div class="tab-pane fade" id="luxury" role="tabpanel" aria-labelledby="luxury-tab">
+                    <div class="row g-3">
+                        <div class="col-md-4"
+                             th:each="result : ${luxuryResults}">
+                            <div class="card card-vehicle shadow-sm border-0 h-100">
+                                <img th:src="${result.vehicle.imageUrl}"
+                                     class="card-img-top vehicle-image"
+                                     alt="Araç görseli">
+
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title mb-1">
+                                        <span th:text="${result.vehicle.brand}"></span>
+                                        <span th:text="${result.vehicle.model}"></span>
+                                    </h5>
+                                    <div class="mb-2">
+                                        <span class="badge badge-neutral me-1"
+                                              th:text="${result.vehicle.fuel.displayName}">
+                                        </span>
+                                        <span class="badge badge-neutral"
+                                              th:text="${result.vehicle.gear.displayName}">
+                                        </span>
+                                    </div>
+
+                                    <a href="#"
+                                       class="small text-decoration-none mb-2"
+                                       data-bs-toggle="collapse"
+                                       th:attr="data-bs-target='#details-' + ${result.vehicle.id}">
+                                        <span class="me-1">Araç Detayları</span>
+                                        <i class="bi bi-chevron-down"></i>
+                                    </a>
+
+                                    <div class="collapse mb-2"
+                                         th:id="'details-' + ${result.vehicle.id}">
+                                        <ul class="list-unstyled small mb-0 text-muted">
+                                            <li th:text="'Min. Sürücü Yaşı: ' + ${result.vehicle.minAge} + ' yaş'"></li>
+                                            <li th:text="'Min. Ehliyet Süresi: ' + ${result.vehicle.minLicenseYear} + ' yıl'"></li>
+                                            <li th:text="'Günlük KM Limiti: ' + ${T(com.emirrent.model.Vehicle).getDailyKmLimit()} + ' km'"></li>
+                                        </ul>
+                                    </div>
+
+                                    <form class="mt-auto pt-2" method="post" th:action="@{/payment-page}">
+                                        <input type="hidden" name="vehicleId" th:value="${result.vehicle.id}">
+                                        <input type="hidden" name="pickupLocation" th:value="${pickupLocation}">
+                                        <input type="hidden" name="dropoffLocation" th:value="${dropoffLocation}">
+                                        
+                                        <input type="hidden" name="pickupDate" th:value="${pickupDateTime != null ? #temporals.format(pickupDateTime, 'yyyy-MM-dd') : ''}">
+                                        <input type="hidden" name="pickupTime" th:value="${pickupDateTime != null ? #temporals.format(pickupDateTime, 'HH:mm') : ''}">
+                                        
+                                        <input type="hidden" name="dropoffDate" th:value="${dropoffDateTime != null ? #temporals.format(dropoffDateTime, 'yyyy-MM-dd') : ''}">
+                                        <input type="hidden" name="dropoffTime" th:value="${dropoffDateTime != null ? #temporals.format(dropoffDateTime, 'HH:mm') : ''}">
+                                        <div class="d-flex justify-content-between align-items-end mb-2">
+                                            <div>
+                                                <div class="small text-muted">Günlük Fiyat</div>
+                                                <div class="fw-bold text-teal fs-5"
+                                                     th:text="${#numbers.formatInteger(result.pricePerDay, 0, 'POINT')} + ' TL'">
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="small text-muted">Toplam</div>
+                                                <div class="fw-bold text-teal fs-6"
+                                                     th:text="${#numbers.formatInteger(result.totalPrice, 0, 'POINT')} + ' TL'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-teal w-100 fw-semibold">
+                                            Hemen Kirala
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(luxuryResults)}" class="col-12">
+                            <div class="alert alert-light border">
+                                Seçilen kriterlere uygun lüks araç bulunamadı.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Bootstrap JS (with Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Optional Bootstrap Icons for chevron -->
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</body>
+</html>
+
+

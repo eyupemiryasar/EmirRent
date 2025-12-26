@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Başarılı - EmirRent</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --emirrent-teal: #20c997; }
+        body { background: #f5f7fa; }
+        .text-teal { color: var(--emirrent-teal) !important; }
+        .btn-teal {
+            background-color: var(--emirrent-teal);
+            border-color: var(--emirrent-teal);
+            color: #fff;
+        }
+        .btn-teal:hover {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: #fff;
+        }
+        .checkmark {
+            font-size: 64px;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 text-center p-4">
+                <div class="checkmark text-teal mb-3">✓</div>
+                <h3 class="fw-bold mb-2">Ödeme Başarılı!</h3>
+                <p class="text-muted mb-3">Rezervasyonunuz oluşturuldu.</p>
+                <div class="bg-light border rounded-3 py-3 mb-4">
+                    <div class="small text-muted">PNR Kodunuz</div>
+                    <div class="fw-bold fs-4 text-teal" th:text="${pnrCode}"></div>
+                </div>
+                <a href="/" class="btn btn-teal fw-semibold w-100">Ana Sayfaya Dön</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
