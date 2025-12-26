@@ -13,7 +13,9 @@ Kullanıcıların mevcut araçları listelemesini, özelliklerini görmesini ve 
 ## 🚀 Özellikler
 * [x] Araç listeleme
 * [x] Araç kiralama hesaplamaları
-* [ ] Veritabanı bağlantısı (Geliştirilme aşamasında)
+* [x] Validasyon yapmadan kullanıcı bilgileri alma ekranı
+* [x] Kiralama şartları kontrolü
+* [x] Onay ekranı
 
 ---
 *Geliştirici: Emir Yaşar*
